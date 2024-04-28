@@ -6,7 +6,7 @@ using UnityEngine;
 public class TimeMaster : MonoBehaviour
 {
 
-    [SerializeField] private const float REAL_SECONDS_PER_IN_GAME_DAY = 60f; //1440f нормальное игровое время, 60f время для тестирования
+    [SerializeField] private const float REAL_SECONDS_PER_IN_GAME_DAY = 300f; //1440f нормальное игровое время, 60f время для тестирования
     [SerializeField] private Light sun;
     [SerializeField] private float sunRotationSpeed;
     [SerializeField] private Transform HourArrow;
@@ -15,14 +15,14 @@ public class TimeMaster : MonoBehaviour
     private Transform hourArrowTransform;
     private Transform minuteArrowTransform;
 
-    [SerializeField] private float day;
+    [SerializeField] public float day;
     [SerializeField] private float dayNormalized;
     [SerializeField] public bool isNight = true;
     [SerializeField] private float rotationDegreesPerDay = 360f;
 
     [SerializeField] private float hoursPerDay = 24f;
 
-    [SerializeField] private float currentHourTime;
+    [SerializeField] public float currentHourTime;
 
     [Header("LightingPreset")]
     [SerializeField] private Gradient skyColor;

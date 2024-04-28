@@ -15,6 +15,12 @@ public class UiInteracion : MonoBehaviour
 [SerializeField] private TimeMaster timeMaster;
 [SerializeField] private Gameover gameOver;
 
+
+
+[SerializeField] private Animator animator;
+
+
+[SerializeField] private GameObject Tutorial;
 [SerializeField] private GameObject actionHolder;
 [SerializeField] private GameObject SuccessPanel;
 [SerializeField] private GameObject ActionPanel;
@@ -47,6 +53,7 @@ public class UiInteracion : MonoBehaviour
 void FixedUpdate()
 {
     energyCheckBox();
+    timeOutCheck();
 }
 private void nightDamageCheck(int i)
 {
@@ -57,6 +64,9 @@ private void nightDamageCheck(int i)
     gameStat.regenTimeDelay = 5;
     SuccessPanel.transform.Find("Description").GetComponent<TextMeshProUGUI>().text = 
     currentCryticallDesc;
+    animator.SetBool("EnergyRegenHigh", true);
+    animator.SetBool("EnergyRegenNormal", false);
+    animator.SetBool("EnergyRegenLow", false);
     }
     if(chStat.PhobiasPrefabs[i].nightMultiplyer == false && timeMaster.isNight == true)
     {
@@ -65,6 +75,19 @@ private void nightDamageCheck(int i)
         gameStat.regenTimeDelay = 20f;
         SuccessPanel.transform.Find("Description").GetComponent<TextMeshProUGUI>().text = 
         currentUnsuccessfulNightDesc;
+        animator.SetBool("EnergyRegenHigh", false);
+        animator.SetBool("EnergyRegenNormal", false);
+        animator.SetBool("EnergyRegenLow", true);
+
+    }
+}
+
+private void timeOutCheck()
+{
+    if(timeMaster.day >= 1)
+    {
+        gameOver.isWin = false;
+        gameOver.gameOverMethod();
     }
 }
 private void healthCheck()
@@ -88,7 +111,7 @@ private void energyCheckPanel()
 {
     if(currentEnergyCost>0) 
         actionHolder.transform.Find("ActionButton").GetComponent<Image>().sprite = EnergyLvlsSprite[0];
-    if(currentEnergyCost>25) 
+    if(currentEnergyCost>20) 
         actionHolder.transform.Find("ActionButton").GetComponent<Image>().sprite = EnergyLvlsSprite[1];
     if(currentEnergyCost>50) 
         actionHolder.transform.Find("ActionButton").GetComponent<Image>().sprite = EnergyLvlsSprite[2];
@@ -99,15 +122,17 @@ private void energyCheckPanel()
 }
 private void energyCheckBox()
 {
-    if(gameStat.houseEnergy>=0) 
+    if(gameStat.houseEnergy < 0 )
+        gameStat.houseEnergy = 0;
+    if(gameStat.houseEnergy >= 0) 
         EnergyBox.transform.Find("EnergyBoxImage").GetComponent<Image>().sprite = EnergyLvlsSprite[0];
-    if(gameStat.houseEnergy>25) 
+    if(gameStat.houseEnergy > 20) 
         EnergyBox.transform.Find("EnergyBoxImage").GetComponent<Image>().sprite = EnergyLvlsSprite[1];
-    if(gameStat.houseEnergy>50) 
+    if(gameStat.houseEnergy > 50) 
         EnergyBox.transform.Find("EnergyBoxImage").GetComponent<Image>().sprite = EnergyLvlsSprite[2];
-    if(gameStat.houseEnergy>75) 
+    if(gameStat.houseEnergy > 75) 
         EnergyBox.transform.Find("EnergyBoxImage").GetComponent<Image>().sprite = EnergyLvlsSprite[3];
-    if(gameStat.houseEnergy==100) 
+    if(gameStat.houseEnergy == 100) 
         EnergyBox.transform.Find("EnergyBoxImage").GetComponent<Image>().sprite = EnergyLvlsSprite[4];
     
 }
@@ -116,6 +141,7 @@ private void energyCheckBox()
 public void actionPlanelInitialization()
 {
     energyCheckPanel();
+    SuccessPanel.SetActive(false);
     actionHolder.transform.Find("ActionButton").Find("ActionButtonText").GetComponent<TextMeshProUGUI>().text = currentActionName;
 }
 
@@ -127,6 +153,8 @@ public void actionActivation()
         {
         gameStat.houseEnergy -= currentEnergyCost;
         energyCheckBox();
+        Tutorial.SetActive(false);
+        
         //isVisibleCheck();
             //if (isVisible) //проверка на видимость объекта
             //{
@@ -137,6 +165,9 @@ public void actionActivation()
                         isSuccess = true;
                         gameStat.score += 100;
                         gameStat.regenTimeDelay = 10;
+                        animator.SetBool("EnergyRegenHigh", false);
+                        animator.SetBool("EnergyRegenNormal", true);
+                        animator.SetBool("EnergyRegenLow", false);
 
 
                         if (!chStat.PhobiasPrefabs[i].isKnown) //Проверка на новую закрытую фобию 
@@ -146,14 +177,17 @@ public void actionActivation()
                             phobiaPanelCount++;
                             gameStat.score += 200;
                             gameStat.regenTimeDelay = 5;
+                            animator.SetBool("EnergyRegenHigh", true);
+                            animator.SetBool("EnergyRegenNormal", false);
+                            animator.SetBool("EnergyRegenLow", false);
+                           
                         }
 
                         SuccessPanel.transform.Find("ActionPhobiaImg").GetComponent<Image>().sprite = chStat.PhobiasPrefabs[i].Icon;
                         SuccessPanel.transform.Find("Description").GetComponent<TextMeshProUGUI>().text = currentSuccessfulDesc;
                         nightDamageCheck(i);
-
                         chStat.characterHealth -= currentHealthDamage * chStat.characterDurability * nightDamageMultiplier;
-
+                        
 
                         ActionPanel.SetActive(false);
                         SuccessPanel.SetActive(true);
@@ -167,6 +201,10 @@ public void actionActivation()
                     SuccessPanel.transform.Find("Description").GetComponent<TextMeshProUGUI>().text = currentUnsuccessfulDesc;
                     gameStat.score -= 150;
                     gameStat.regenTimeDelay = 15;
+                        animator.SetBool("EnergyRegenHigh", false);
+                        animator.SetBool("EnergyRegenNormal", false);
+                        animator.SetBool("EnergyRegenLow", true);
+                    
 
                     ActionPanel.SetActive(false);
                     SuccessPanel.SetActive(true);
@@ -192,4 +230,5 @@ public void actionActivation()
 
 
 }
+
 }

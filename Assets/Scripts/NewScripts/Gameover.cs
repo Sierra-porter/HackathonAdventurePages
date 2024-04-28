@@ -8,6 +8,11 @@ using TMPro;
 public class Gameover : MonoBehaviour
 {
 
+    [SerializeField] List<AsyncOperation> scenesToLoad = new List<AsyncOperation>();
+    [SerializeField] private GameObject LoadingMenu;
+    [SerializeField] private Image LoadingProgressBar;
+
+    [SerializeField] private Sprite WinEnding;
     [SerializeField] private GameStats gameStat;
     [SerializeField] private CharacterStats chStat;
 
@@ -24,7 +29,7 @@ public class Gameover : MonoBehaviour
     
     public void quitGame()
     {
-
+        Application.Quit();
     }
     public void restartLvl()
     {
@@ -32,7 +37,9 @@ public class Gameover : MonoBehaviour
     }
     public void continueGame()
     {
-         SceneManager.LoadScene("Scenes/MainMenu");
+         LoadingMenu.SetActive(true);
+         scenesToLoad.Add(SceneManager.LoadSceneAsync("MainMenu"));
+         StartCoroutine(LoadingScreen());
     }
 
 
@@ -49,14 +56,15 @@ public class Gameover : MonoBehaviour
         if(isWin){
             GameOverScreen.transform.Find("GameOverText").
             GetComponent<TextMeshProUGUI>().text = "Победа";
+            GameOverScreen.transform.Find("GameOverStatsBox").Find("VillagerPortret").GetComponent<Image>().sprite
+         = WinEnding;
         }else{
             GameOverScreen.transform.Find("GameOverText").
             GetComponent<TextMeshProUGUI>().text = "Поражение";
+            GameOverScreen.transform.Find("GameOverStatsBox").Find("VillagerPortret").GetComponent<Image>().sprite
+         = VillagerBox.transform.Find("VillagerImage").GetComponent<Image>().sprite;
         }
         
-
-        GameOverScreen.transform.Find("GameOverStatsBox").Find("VillagerPortret").GetComponent<Image>().sprite
-         = VillagerBox.transform.Find("VillagerImage").GetComponent<Image>().sprite;
 
         GameOverScreen.transform.Find("GameOverStatsBox").Find("ScoreText").
         GetComponent<TextMeshProUGUI>().text = "cчет: " + gameStat.score;
@@ -72,4 +80,20 @@ public class Gameover : MonoBehaviour
         GameOverScreen.SetActive(true);
 
     }
+
+
+    IEnumerator LoadingScreen()
+    {
+        float totalProgress = 0;
+        for (int i = 0; i < scenesToLoad.Count; i++)
+        {
+            while(!scenesToLoad[i].isDone)
+            {
+                totalProgress += scenesToLoad[i].progress;
+                LoadingProgressBar.fillAmount = totalProgress / scenesToLoad.Count;
+                yield return null;
+            }
+        }
+    }
+
 }
